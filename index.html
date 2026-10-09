@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#12352d">
+<title>Elie3M Business</title>
+<style>
+:root{--green:#12352d;--lime:#d1fae5;--bg:#f3f6f4;--white:#fff;--text:#20312a;--muted:#697870;--border:#dfe7e1;--red:#b42318}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:var(--green);color:white;padding:22px 16px}
+header h1{margin:0;font-size:23px}
+header p{margin:7px 0 0;color:var(--lime);font-size:13px}
+main{max-width:900px;margin:auto;padding:16px}
+nav{display:flex;gap:8px;overflow-x:auto;margin-bottom:18px}
+nav button{white-space:nowrap;border:1px solid var(--border);background:white;color:var(--green);padding:12px;border-radius:9px;font-weight:bold}
+nav button.active{background:var(--green);color:white}
+h2{font-size:20px;margin-top:0}
+h3{font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.stat,.panel,.item{background:white;border:1px solid var(--border);border-radius:12px;padding:15px}
+.stat span{display:block;color:var(--muted);font-size:13px}
+.stat strong{display:block;font-size:24px;margin-top:9px;color:var(--green);overflow-wrap:anywhere}
+.panel{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:bold;margin:13px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5ce;border-radius:8px;font:inherit;background:white;color:var(--text)}
+textarea{min-height:75px;resize:vertical}
+button{cursor:pointer}
+.primary{background:var(--green);color:white;border:0;border-radius:8px;padding:12px 15px;font-weight:bold}
+.secondary{background:#e5f5eb;color:var(--green);border:0;border-radius:8px;padding:10px}
+.danger{background:#fff0ef;color:var(--red);border:0;border-radius:8px;padding:9px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.item{margin-bottom:10px}
+.item h3{margin:0 0 8px;overflow-wrap:anywhere}
+.item p{font-size:14px;color:var(--muted);margin:6px 0;overflow-wrap:anywhere}
+.item-top{display:flex;justify-content:space-between;align-items:start;gap:8px}
+.tag{font-size:12px;background:#e5f5eb;color:var(--green);border-radius:20px;padding:6px 8px}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+.small{font-size:12px;color:var(--muted);line-height:1.6}
+[hidden]{display:none!important}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:20px}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.forms{display:grid;grid-template-columns:1fr 1fr;gap:14px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Elie3M Business</h1>
+  <p>Votre partenaire digital au quotidien</p>
+</header>
+
+<main>
+<nav aria-label="Navigation">
+  <button class="active" data-tab="dashboard">Accueil</button>
+  <button data-tab="clients">Clients</button>
+  <button data-tab="services">Prestations</button>
+</nav>
+
+<section id="dashboard">
+  <h2>Tableau de bord</h2>
+  <div class="stats">
+    <div class="stat"><span>Clients</span><strong id="totalClients">0</strong></div>
+    <div class="stat"><span>Prestations</span><strong id="totalServices">0</strong></div>
+    <div class="stat"><span>En cours</span><strong id="inProgress">0</strong></div>
+    <div class="stat"><span>Montant enregistré</span><strong id="totalAmount">0 FCFA</strong></div>
+  </div>
+  <div class="panel">
+    <h3>Bienvenue dans ton espace</h3>
+    <p>Gère tes clients et suis tes interventions informatiques et bureautiques.</p>
+    <div class="actions">
+      <button class="primary" onclick="showTab('clients')">+ Nouveau client</button>
+      <button class="secondary" onclick="showTab('services')">+ Nouvelle prestation</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>Dernières prestations</h3>
+    <div id="recentServices"></div>
+  </div>
+</section>
+
+<section id="clients" hidden>
+  <h2>Gestion des clients</h2>
+  <div class="panel">
+    <h3>Ajouter un client</h3>
+    <form id="clientForm">
+      <label for="clientName">Nom du client *</label>
+      <input id="clientName" required maxlength="100" placeholder="Nom ou entreprise">
+      <label for="clientPhone">Téléphone</label>
+      <input id="clientPhone" type="tel" maxlength="30" placeholder="Numéro de téléphone">
+      <label for="clientEmail">Adresse e-mail</label>
+      <input id="clientEmail" type="email" maxlength="150" placeholder="client@exemple.com">
+      <label for="clientAddress">Adresse</label>
+      <input id="clientAddress" maxlength="200" placeholder="Ville ou quartier">
+      <div class="actions"><button class="primary" type="submit">Enregistrer le client</button></div>
+    </form>
+  </div>
+  <div class="panel">
+    <h3>Mes clients</h3>
+    <label for="searchClients">Rechercher un client</label>
+    <input id="searchClients" placeholder="Nom ou téléphone...">
+    <div id="clientList"></div>
+  </div>
+</section>
+
+<section id="services" hidden>
+  <h2>Gestion des prestations</h2>
+  <div class="panel">
+    <h3>Nouvelle prestation</h3>
+    <form id="serviceForm">
+      <label for="serviceClient">Client *</label>
+      <select id="serviceClient" required><option value="">Choisir un client</option></select>
+      <label for="serviceType">Catégorie *</label>
+      <select id="serviceType" required>
+        <option value="Réparation ordinateur">Réparation ordinateur</option>
+        <option value="Maintenance informatique">Maintenance informatique</option>
+        <option value="Réseau informatique / LAN">Réseau informatique / LAN</option>
+        <option value="Sécurité Wi-Fi">Sécurité Wi-Fi</option>
+        <option value="Installation de caméras">Installation de caméras</option>
+        <option value="Création de site web">Création de site web</option>
+        <option value="Création d'application">Création d'application</option>
+        <option value="Service bureautique">Service bureautique</option>
+        <option value="Assistance informatique">Assistance informatique</option>
+        <option value="Autre prestation">Autre prestation</option>
+      </select>
+      <label for="serviceDescription">Description *</label>
+      <textarea id="serviceDescription" required maxlength="1000" placeholder="Travail à réaliser..."></textarea>
+      <label for="servicePrice">Montant estimé (FCFA)</label>
+      <input id="servicePrice" type="number" min="0" max="1000000000" step="1" value="0" required>
+      <label for="serviceStatus">État</label>
+      <select id="serviceStatus">
+        <option>En attente</option>
+        <option>En cours</option>
+        <option>En attente de pièce</option>
+        <option>Terminée</option>
+        <option>Livrée</option>
+      </select>
+      <div class="actions"><button class="primary" type="submit">Enregistrer la prestation</button></div>
+    </form>
+  </div>
+  <div class="panel">
+    <h3>Historique des prestations</h3>
+    <label for="searchServices">Rechercher</label>
+    <input id="searchServices" placeholder="Client, type ou description...">
+    <div id="serviceList"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  Elie3MDigital · Elie3M Business<br>
+  Première version locale · Données enregistrées sur cet appareil
+  <p><button class="secondary" id="exportBtn">Exporter une sauvegarde JSON</button></p>
+  <p class="small">Conserve régulièrement une sauvegarde. N'enregistre pas de données confidentielles sur un appareil partagé.</p>
+</footer>
+
+<script>
+"use strict";
+
+const STORAGE_KEY = "elie3m_business_v1";
+const $ = id => document.getElementById(id);
+
+let data = { clients: [], services: [] };
+
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (Array.isArray(parsed.clients) && Array.isArray(parsed.services)) {
+      data = parsed;
+    }
+  }
+} catch (e) {
+  alert("Les données locales n'ont pas pu être chargées. Vérifie le navigateur.");
+}
+
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    render();
+  } catch (e) {
+    alert("Enregistrement impossible. L'espace de stockage est peut-être insuffisant.");
+  }
+}
+
+function makeId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+function money(n) {
+  return new Intl.NumberFormat("fr-FR", {maximumFractionDigits:0}).format(n) + " FCFA";
+}
+
+function safe(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  })[c]);
+}
+
+function showTab(name) {
+  ["dashboard", "clients", "services"].forEach(tab => {
+    $(tab).hidden = tab !== name;
+  });
+  document.querySelectorAll("[data-tab]").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === name);
+  });
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+document.querySelectorAll("[data-tab]").forEach(btn => {
+  btn.addEventListener("click", () => showTab(btn.dataset.tab));
+});
+
+function clientName(id) {
+  const c = data.clients.find(x => x.id === id);
+  return c ? c.name : "Client supprimé";
+}
+
+function render() {
+  $("totalClients").textContent = data.clients.length;
+  $("totalServices").textContent = data.services.length;
+  $("inProgress").textContent = data.services.filter(s =>
+    s.status === "En cours" || s.status === "En attente" ||
+    s.status === "En attente de pièce"
+  ).length;
+
+  const total = data.services.reduce((sum, s) => sum + Number(s.price || 0), 0);
+  $("totalAmount").textContent = money(total);
+
+  $("serviceClient").innerHTML =
+    '<option value="">Choisir un client</option>' +
+    data.clients.map(c => `<option value="${safe(c.id)}">${safe(c.name)}</option>`).join("");
+
+  const cq = $("searchClients").value.toLowerCase().trim();
+  const clients = data.clients.filter(c =>
+    [c.name,c.phone,c.email,c.address].some(v => String(v || "").toLowerCase().includes(cq))
+  );
+
+  $("clientList").innerHTML = clients.length ? clients.map(c => `
+    <div class="item">
+      <h3>${safe(c.name)}</h3>
+      <p>Téléphone : ${safe(c.phone || "Non renseigné")}</p>
+      <p>E-mail : ${safe(c.email || "Non renseigné")}</p>
+      <p>Adresse : ${safe(c.address || "Non renseignée")}</p>
+      <div class="actions">
+        <button class="danger" data-delete-client="${safe(c.id)}">Supprimer</button>
+      </div>
+    </div>`).join("") : '<p class="empty">Aucun client trouvé.</p>';
+
+  const sq = $("searchServices").value.toLowerCase().trim();
+  const services = data.services.filter(s =>
+    [clientName(s.clientId),s.type,s.description,s.status]
+      .some(v => String(v || "").toLowerCase().includes(sq))
+  );
+
+  const cards = services.map(s => `
+    <div class="item">
+      <div class="item-top">
+        <h3>${safe(s.type)}</h3>
+        <span class="tag">${safe(s.status)}</span>
+      </div>
+      <p>Client : ${safe(clientName(s.clientId))}</p>
+      <p>${safe(s.description)}</p>
+      <p>Montant estimé : <strong>${money(Number(s.price || 0))}</strong></p>
+      <p class="small">Créée le ${safe(s.date)}</p>
+      <label for="status-${safe(s.id)}">Modifier l'état</label>
+      <select id="status-${safe(s.id)}" data-status="${safe(s.id)}">
+        ${["En attente","En cours","En attente de pièce","Terminée","Livrée"].map(st =>
+          `<option ${st === s.status ? "selected" : ""}>${st}</option>`
+        ).join("")}
+      </select>
+      <div class="actions">
+        <button class="danger" data-delete-service="${safe(s.id)}">Supprimer</button>
+      </div>
+    </div>`).join("");
+
+  $("serviceList").innerHTML = cards || '<p class="empty">Aucune prestation enregistrée.</p>';
+
+  const recent = [...data.services].reverse().slice(0, 5);
+  $("recentServices").innerHTML = recent.length
+    ? recent.map(s => `<div class="item"><h3>${safe(s.type)}</h3><p>${safe(clientName(s.clientId))} · ${safe(s.status)}</p><p>${money(Number(s.price || 0))}</p></div>`).join("")
+    : '<p class="empty">Tes prestations apparaîtront ici.</p>';
+}
+
+$("clientForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("clientName").value.trim();
+  if (!name) return;
+
+  data.clients.push({
+    id: makeId(),
+    name,
+    phone: $("clientPhone").value.trim(),
+    email: $("clientEmail").value.trim(),
+    address: $("clientAddress").value.trim(),
+    date: new Date().toISOString()
+  });
+
+  save();
+  e.target.reset();
+  showTab("clients");
+});
+
+$("serviceForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const clientId = $("serviceClient").value;
+  const description = $("serviceDescription").value.trim();
+  const price = Number($("servicePrice").value);
+
+  if (!data.clients.some(c => c.id === clientId)) {
+    alert("Ajoute d'abord un client.");
+    return;
+  }
+  if (!description || !Number.isFinite(price) || price < 0 || price > 1000000000) {
+    alert("Vérifie la description et le montant.");
+    return;
+  }
+
+  data.services.push({
+    id: makeId(),
+    clientId,
+    type: $("serviceType").value,
+    description,
+    price,
+    status: $("serviceStatus").value,
+    date: new Date().toLocaleDateString("fr-FR")
+  });
+
+  save();
+  e.target.reset();
+  $("servicePrice").value = "0";
+  showTab("services");
+});
+
+$("clientList").addEventListener("click", e => {
+  const btn = e.target.closest("[data-delete-client]");
+  if (!btn) return;
+  const id = btn.dataset.deleteClient;
+  if (data.services.some(s => s.clientId === id)) {
+    alert("Ce client possède des prestations. Supprime d'abord ses prestations si tu veux supprimer ce client.");
+    return;
+  }
+  if (confirm("Supprimer ce client ?")) {
+    data.clients = data.clients.filter(c => c.id !== id);
+    save();
+  }
+});
+
+$("serviceList").addEventListener("change", e => {
+  const id = e.target.dataset.status;
+  if (!id) return;
+  const s = data.services.find(x => x.id === id);
+  if (s) {
+    s.status = e.target.value;
+    save();
+  }
+});
+
+$("serviceList").addEventListener("click", e => {
+  const btn = e.target.closest("[data-delete-service]");
+  if (!btn) return;
+  if (confirm("Supprimer cette prestation ?")) {
+    data.services = data.services.filter(s => s.id !== btn.dataset.deleteService);
+    save();
+  }
+});
+
+$("searchClients").addEventListener("input", render);
+$("searchServices").addEventListener("input", render);
+
+$("exportBtn").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "sauvegarde-elie3m-business.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+render();
+</script>
+</body>
+</html>
